@@ -9,8 +9,7 @@ import org.acme.inventory.model.InventoryService;
 import org.acme.inventory.model.RemoveCarRequest;
 
 @QuarkusMain
-public class InventoryCommand
-    implements QuarkusApplication {
+public class InventoryCommand implements QuarkusApplication {
 
     private static final String USAGE =
         "Usage: inventory <add>|<remove> " +
