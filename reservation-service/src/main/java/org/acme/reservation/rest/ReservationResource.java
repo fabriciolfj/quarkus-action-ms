@@ -5,14 +5,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import java.util.stream.Collectors;
+
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import io.smallrye.graphql.client.GraphQLClient;
+import jakarta.ws.rs.core.SecurityContext;
 import org.acme.reservation.inventory.Car;
 import org.acme.reservation.inventory.GraphQLInventoryClient;
 import org.acme.reservation.inventory.InventoryClient;
@@ -29,23 +28,37 @@ public class ReservationResource {
     private final ReservationsRepository reservationsRepository;
     private final InventoryClient inventoryClient;
     private final RentalClient rentalClient;
+    private final SecurityContext context;
 
     public ReservationResource(ReservationsRepository reservations,
                                @GraphQLClient("inventory") GraphQLInventoryClient inventoryClient,
-                               @RestClient RentalClient rentalClient) {
+                               @RestClient RentalClient rentalClient,
+                               SecurityContext context) {
         this.reservationsRepository = reservations;
         this.inventoryClient = inventoryClient;
         this.rentalClient = rentalClient;
+        this.context = context;
+    }
+
+    @GET
+    @Path("/all")
+    public Collection<Reservation> allReservations() {
+        final String userId = context.getUserPrincipal() != null ? context.getUserPrincipal().getName() : "anonimo";
+
+        return reservationsRepository.findAll()
+                .stream()
+                .filter(r -> userId == null || userId.equals(r.userId))
+                .collect(Collectors.toList());
     }
 
     @Consumes(MediaType.APPLICATION_JSON)
     @POST
     public Reservation make(Reservation reservation) {
+        reservation.userId = context.getUserPrincipal() != null ? context.getUserPrincipal().getName() : "anonimo";
         final Reservation result = reservationsRepository.save(reservation);
-        final String userId = "x";
 
         if (reservation.startDay.equals(LocalDate.now())) {
-            rentalClient.start(userId, result.id);
+            rentalClient.start(reservation.userId, result.id);
         }
 
         return result;
@@ -69,5 +82,12 @@ public class ReservationResource {
         }
 
         return carsById.values();
+    }
+
+    @DELETE
+    public void removeReserve() {
+        final String userId = context.getUserPrincipal() != null ? context.getUserPrincipal().getName() : "anonimo";
+        var reservations = reservationsRepository.findAll();
+        reservations.removeIf(f -> f.userId.equals(userId));
     }
 }
