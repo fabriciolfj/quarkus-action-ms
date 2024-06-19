@@ -22,6 +22,7 @@ public class GrpcInventoryService implements InventoryService {
 
     @Override
     public Multi<CarResponse> add(Multi<InsertCarRequest> requests) {
+        System.out.println("chegou");
         return requests
             .map(request -> {
                 Car car = new Car();
