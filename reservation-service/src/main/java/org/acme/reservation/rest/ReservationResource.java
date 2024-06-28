@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
@@ -81,16 +82,26 @@ public class ReservationResource {
     @Path("availability")
     public Uni<Collection<Car>> availability(@RestQuery LocalDate startDate,
                                  @RestQuery LocalDate endDate) {
-        final Map<Long, Car> carsById = new HashMap<>();
+        Uni<Map<Long, Car>> carsUni = inventoryClient.allCars()
+                .map(cars -> cars.stream().collect(Collectors
+                        .toMap(car -> car.id, Function.identity())));
 
-        return Reservation.<Reservation>listAll()
-                .onItem().transform(reservations -> {
+        Uni<List<Reservation>> reservationsUni = Reservation.listAll();
+
+        return Uni.combine().all()
+                .unis(carsUni, reservationsUni)
+                .asTuple()
+                .chain(tuple -> {
+                    Map<Long, Car> carsById = tuple.getItem1();
+                    List<Reservation> reservations = tuple.getItem2();
+
+                    // for each reservation, remove the car from the map
                     for (Reservation reservation : reservations) {
                         if (reservation.isReserved(startDate, endDate)) {
                             carsById.remove(reservation.carId);
                         }
                     }
-                    return carsById.values();
+                    return Uni.createFrom().item(carsById.values());
                 });
     }
 
