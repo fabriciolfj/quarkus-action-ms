@@ -17,6 +17,7 @@ public class Rental extends PanacheMongoEntity {
     @BsonProperty("rental-active")
     public boolean active;
     public LocalDate endDate;
+    public boolean paid;
 
     public static Optional<Rental> findByUserAndReservationIdsOptional(String userId, Long reservationId) {
         return find("userId = ?1 and reservationId = ?2", userId, reservationId)

@@ -94,7 +94,7 @@ public class RentalResource {
         return Rental.listActive();
     }
 
-    @Incoming("invoices-adjust")
+    //@Incoming("invoices-adjust")
     public void test(InvoiceAdjust invoiceAdjust) {
         log.info("receive message {}", invoiceAdjust);
     }
