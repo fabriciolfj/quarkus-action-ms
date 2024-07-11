@@ -1,4 +1,4 @@
-package org.acme.billing;
+package org.acme.billing.data;
 
 
 import java.time.LocalDate;

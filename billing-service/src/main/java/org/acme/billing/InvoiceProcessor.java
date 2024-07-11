@@ -2,6 +2,9 @@ package org.acme.billing;
 
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.acme.billing.data.Invoice;
+import org.acme.billing.data.Reservation;
+import org.acme.billing.data.ReservationInvoice;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
