@@ -23,6 +23,8 @@ import org.acme.reservation.inventory.GraphQLInventoryClient;
 import org.acme.reservation.inventory.InventoryClient;
 import org.acme.reservation.rental.RentalClient;
 import org.acme.reservation.entity.Reservation;
+import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -87,6 +89,8 @@ public class ReservationResource {
 
     @GET
     @Path("availability")
+    @Retry(maxRetries = 25, delay = 1000)
+    @Fallback(fallbackMethod = "availabilityFallback")
     public Uni<Collection<Car>> availability(@RestQuery LocalDate startDate,
                                  @RestQuery LocalDate endDate) {
         Uni<Map<Long, Car>> carsUni = inventoryClient.allCars()
@@ -117,6 +121,10 @@ public class ReservationResource {
     public Uni<Void> removeReserve() {
         final String userId = context.getUserPrincipal() != null ? context.getUserPrincipal().getName() : "anonimo";
         return Reservation.delete("userId", userId).replaceWithVoid();
+    }
+
+    public Uni<Collection<Car>> availabilityFallback(LocalDate startDate, LocalDate endDate) {
+        return Uni.createFrom().item(List.of());
     }
 
     private double computePrice(Reservation reservation) {

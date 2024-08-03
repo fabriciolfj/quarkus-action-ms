@@ -9,8 +9,8 @@ import java.util.Optional;
 @ApplicationScoped
 public class CardRepository implements PanacheRepository<Car> {
 
-    public Optional<Car> findByLicensePlateNumberOptional(
-            String licensePlateNumber) {
+    public Optional<Car> findByLicensePlateNumberOptional(String licensePlateNumber) {
+
         return find("licensePlateNumber", licensePlateNumber)
                 .firstResultOptional();
     }

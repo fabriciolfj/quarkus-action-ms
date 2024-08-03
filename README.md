@@ -15,4 +15,6 @@ quarkus ext add quarkus-container-image-docker
 ou
 
  ./mvnw clean package -DskipTests -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true
+ 
+ ./mvnw clean package -Dquarkus.kubernetes.deploy=true
 ````
