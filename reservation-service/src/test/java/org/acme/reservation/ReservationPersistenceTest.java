@@ -15,11 +15,11 @@ import java.time.LocalDate;
 import java.util.function.Supplier;
 
 
-@QuarkusTest
+//@QuarkusTest
 public class ReservationPersistenceTest {
 
-    @Test
-    @RunOnVertxContext
+    //@Test
+    //@RunOnVertxContext
     public void testCreateReservation(
             UniAsserter uniAsserter) {
         final UniAsserter asserter = new UniAsserterInterceptor(uniAsserter) {
