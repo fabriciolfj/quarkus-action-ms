@@ -18,3 +18,14 @@ ou
  
  ./mvnw clean package -Dquarkus.kubernetes.deploy=true
 ````
+
+- para usar sandbox do openshi
+```
+oc project fabricio-jacob-dev
+oc policy who-can get services
+oc login --token=xxxx --server=https://xxxx.p1.openshiftapps.com:6443
+oc adm policy add-role-to-user admin fabricio-jacob -n fabricio-jacob-dev
+oc apply -f target/kubernetes/openshift.yml
+
+https://console-openshift-console.apps.sandbox-m2.ll9k.p1.openshiftapps.com/q/graphql-ui/
+```
